@@ -1,6 +1,6 @@
-// pages/api/chat.js
-
 import OpenAI from "openai";
+
+console.log("API Key:", process.env.OPENAI_API_KEY);  // Log the API key for debugging
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -12,7 +12,6 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // Handle OPTIONS preflight request
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
@@ -20,31 +19,27 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     const { user_query } = req.body;
 
-    // Log the incoming request body for debugging
-    console.log("Incoming Request Body:", req.body);
+    console.log("Incoming user query:", user_query);  // Log incoming query
 
-    // Validate the user query
     if (!user_query || !Array.isArray(user_query)) {
+      console.error("Invalid user query:", user_query);
       return res.status(400).json({ error: "Invalid user query provided" });
     }
 
     try {
-      // Call OpenAI API
       const response = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: user_query,
         temperature: 0.7,
       });
 
-      // Log OpenAI response for debugging
-      console.log("OpenAI Response:", response);
+      console.log("OpenAI Response:", response);  // Log OpenAI response for debugging
 
       const chatResponse = response.choices[0].message.content;
       return res.status(200).json({ response: chatResponse });
     } catch (error) {
-      // Log the error for better visibility
       console.error("Error with OpenAI API:", error);
-
+      console.error("Error details:", error.response ? error.response.data : error.message);
       return res.status(500).json({
         error: "Something went wrong with the OpenAI API.",
         message: error.message,

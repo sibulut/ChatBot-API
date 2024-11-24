@@ -1,9 +1,10 @@
+// src\pages\index.js
+
 import { useState } from "react";
 
 export default function Home() {
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState("");
-  const [botTyping, setBotTyping] = useState(false);
 
   // Maximum allowed conversation turns
   const MAX_CONVERSATION_LIMIT = 11;
@@ -12,7 +13,6 @@ export default function Home() {
   const typeResponse = (response) => {
     let words = response.split(" ");
     let index = 0;
-    setBotTyping(true);
 
     // Create a new message for the bot response
     const newMessage = { role: "assistant", content: "" };
@@ -29,8 +29,7 @@ export default function Home() {
 
       index++;
       if (index === words.length) {
-        clearInterval(interval);
-        setBotTyping(false); // Stop typing when all words are shown
+        clearInterval(interval); // Stop typing when all words are shown
       }
     }, 100); // Adjust typing speed by changing the interval
   };

@@ -1,16 +1,11 @@
 import type { NextConfig } from "next";
+import type { Configuration } from "webpack";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
-
-export default nextConfig;
-
-module.exports = {
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.cache = false; // Disable caching during development
-    }
+  webpack: (config: Configuration) => {
+    config.cache = false; // Disable caching
     return config;
   },
 };
+
+export default nextConfig;

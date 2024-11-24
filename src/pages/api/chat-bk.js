@@ -1,5 +1,3 @@
-// pages/api/chat.js
-
 import OpenAI from "openai";
 
 const openai = new OpenAI({
@@ -7,49 +5,40 @@ const openai = new OpenAI({
 });
 
 export default async function handler(req, res) {
-  // Set CORS headers
+  // Set CORS headers to allow requests from any origin
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // Handle OPTIONS preflight request
   if (req.method === "OPTIONS") {
+    // Preflight request, just send a 200 response
     return res.status(200).end();
   }
 
   if (req.method === "POST") {
     const { user_query } = req.body;
 
-    // Log the incoming request body for debugging
-    console.log("Incoming Request Body:", req.body);
-
-    // Validate the user query
+    // Validate the incoming user query
     if (!user_query || !Array.isArray(user_query)) {
       return res.status(400).json({ error: "Invalid user query provided" });
     }
 
     try {
-      // Call OpenAI API
+      // OpenAI Chat Completion API call
       const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-3.5-turbo",   // Or "gpt-4o-mini"
         messages: user_query,
         temperature: 0.7,
       });
 
-      // Log OpenAI response for debugging
-      console.log("OpenAI Response:", response);
-
+      // Extract chat response from OpenAI API
       const chatResponse = response.choices[0].message.content;
+
+      // Return the response to the frontend
       return res.status(200).json({ response: chatResponse });
     } catch (error) {
-      // Log the error for better visibility
       console.error("Error with OpenAI API:", error);
-
-      return res.status(500).json({
-        error: "Something went wrong with the OpenAI API.",
-        message: error.message,
-        stack: error.stack,
-      });
+      return res.status(500).json({ error: "Something went wrong with the OpenAI API" });
     }
   } else {
     res.setHeader("Allow", ["POST"]);
